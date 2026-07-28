@@ -171,25 +171,48 @@ if not st.session_state["logged_in"]:
 else:
     user = st.session_state["user_info"]
     
-    # اللوجو فـ الشريط الجانبي (Sidebar)
-    if os.path.exists(LOGO_PATH):
-        st.sidebar.image(LOGO_PATH, use_container_width=True)
-        st.sidebar.markdown("<br>", unsafe_allow_html=True)
+    # --- الشريط الجانبي (Sidebar) ---
+    with st.sidebar:
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=150)
+        
+        st.markdown(f"""
+            <div style="background-color: #1E293B; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #334155;">
+                <p style="margin: 0; font-weight: bold; color: #F8FAFC; font-size: 13px;">👤 {user['name']}</p>
+                <p style="margin: 2px 0 0 0; color: #94A3B8; font-size: 11px;">الصفة: <b>{user['role']}</b> | الحساب: <b>{user.get('username', '')}</b></p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            if st.button("🔄 تحديث", use_container_width=True):
+                st.rerun()
+        with col_btn2:
+            if st.button("🚪 خروج", use_container_width=True):
+                st.session_state["logged_in"] = False
+                st.session_state["user_info"] = None
+                st.rerun()
 
-    st.sidebar.title(f"👤 {user['name']}")
-    st.sidebar.caption(f"الصفة: **{user['role']}** | الحساب: **{user.get('username', '')}**")
-    
-    if st.sidebar.button("🔄 تحديث الشاشة"):
-        st.rerun()
+        st.divider()
 
-    if st.sidebar.button("🚪 تسجيل الخروج"):
-        st.session_state["logged_in"] = False
-        st.session_state["user_info"] = None
-        st.rerun()
+        menu = [
+            "📋 عرض والبحث حسب نوع الرخصة", 
+            "🔄 إعادة تجديد رخصة (Renouvellement)",
+            "📜 نموذج أمر بمهمة (Ordre de Mission)",
+            "🖨️ طباعة وثيقة / شهادة رخصة",
+            "📂 نماذج ووثائق للتحميل",
+            "➕ إضافة رخصة جديدة لشركة", 
+            "✏️ تعديل / حذف رخصة"
+        ]
+        
+        if user.get("role") == "Admin":
+            menu.append("👥 إدارة المستخدمين (إضافة وتعديل الحسابات)")
+            
+        menu.append("🔑 تغيير كلمة السر الخاصة بي")
 
-    st.sidebar.divider()
+        choice = st.selectbox("اختر العملية:", menu)
 
-    # اللوجو فـ الصفحة الرئيسية
+    # --- الجزء الرئيسي للمنصة ---
     if os.path.exists(LOGO_PATH):
         col_left, col_center, col_right = st.columns([1, 1.5, 1])
         with col_center:
@@ -202,24 +225,6 @@ else:
     st.divider()
 
     df = load_data()
-
-    # القائمة الرئيسية
-    menu = [
-        "📋 عرض والبحث حسب نوع الرخصة", 
-        "🔄 إعادة تجديد رخصة (Renouvellement)",
-        "📜 نموذج أمر بمهمة (Ordre de Mission)",
-        "🖨️ طباعة وثيقة / شهادة رخصة",
-        "📂 نماذج ووثائق للتحميل",
-        "➕ إضافة رخصة جديدة لشركة", 
-        "✏️ تعديل / حذف رخصة"
-    ]
-    
-    if user.get("role") == "Admin":
-        menu.append("👥 إدارة المستخدمين (إضافة وتعديل الحسابات)")
-        
-    menu.append("🔑 تغيير كلمة السر الخاصة بي")
-
-    choice = st.sidebar.selectbox("اختر العملية:", menu)
 
     # --- 1. عرض والبحث ---
     if choice == "📋 عرض والبحث حسب نوع الرخصة":
@@ -689,7 +694,7 @@ else:
                     st.success("✅ تم حذف الرخصة بنجاح!")
                     st.rerun()
 
-    # --- 8. إدارة المستخدمين وإعادة تعيين كلمة السر (خاصة بالأدمن فقط) ---
+    # --- 8. إدارة المستخدمين ---
     elif choice == "👥 إدارة المستخدمين (إضافة وتعديل الحسابات)":
         st.subheader("👥 إدارة حسابات الموظفين والصلاحيات")
         st.write("يمكنك إضافة حساب جديد، أو إعادة تعيين كلمة السر لأي موظف نسى كلمة السر الخاصة به.")
