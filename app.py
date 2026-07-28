@@ -13,7 +13,7 @@ import base64
 # --- 1. إعداد الصفحة وإخفاء جميع العناصر والأيقونات العائمة ---
 st.set_page_config(page_title="المنصة الإلكترونية لإدارة المناجم", layout="wide")
 
-# كود CSS القوي والشامل لإخفاء الهيدر، الفوتر، الأزرار، والأيقونات العائمة
+# كود CSS القوي والشامل لإخفاء الهيدر، الفوتر، زر Manage app، و Streamlit Viewer Badges
 st.markdown("""
     <style>
     /* 1. إخفاء الشريط العلوي والأيقونات الفوقانية (Share, Edit, GitHub, Star, Menu) */
@@ -38,12 +38,17 @@ st.markdown("""
         visibility: hidden !important;
     }
 
-    /* 4. إخفاء الأيقونات العائمة لتحت على اليمين (Status Widget & Viewer Badges) */
+    /* 4. إخفاء الأيقونات والنافذة العائمة لتحت على اليمين (Status Widget & Viewer Badge / Profile) */
     [data-testid="stStatusWidget"],
+    [data-testid="stAppViewerBadge"],
+    [data-testid="stViewerBadge"],
     .stStatusWidget,
+    .stAppViewerBadge,
     div[class*="viewerBadge"],
     div[class*="styles_viewerBadge"],
     div[class*="StatusWidget"],
+    div[class*="Profile"],
+    a[href*="share.streamlit.io"],
     #root > div:nth-child(2),
     iframe[title="Streamlit App"] ~ div {
         display: none !important;
