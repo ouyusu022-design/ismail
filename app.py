@@ -141,55 +141,26 @@ if "logged_in" not in st.session_state:
 
 users_db = load_users()
 
-# --- 4. واجهة تسجيل الدخول ---
+# --- 4. واجهة تسجيل الدخول (فقط تسجيل الدخول) ---
 if not st.session_state["logged_in"]:
     st.title("🔒 نظام إدارة رخص المناجم (Direction des Mines)")
+    st.write("المرجو إدخال اسم المستخدم وكلمة السر للولوج إلى النظام.")
     
-    tab1, tab2 = st.tabs(["🔑 تسجيل الدخول", "📝 إنشاء حساب موظف جديد"])
-    
-    with tab1:
-        st.write("المرجو إدخال اسم المستخدم وكلمة السر للولوج إلى النظام.")
-        with st.form("login_form"):
-            username_input = st.text_input("اسم المستخدم (Nom d'utilisateur):")
-            password_input = st.text_input("كلمة السر (Mot de passe):", type="password")
-            submit_button = st.form_submit_button("تسجيل الدخول 🔑")
-            
-            if submit_button:
-                if username_input in users_db and users_db[username_input]["password"] == password_input:
-                    user_data = users_db[username_input]
-                    user_data["username"] = username_input
-                    st.session_state["logged_in"] = True
-                    st.session_state["user_info"] = user_data
-                    st.success(f"مرحباً بك {user_data['name']}!")
-                    st.rerun()
-                else:
-                    st.error("❌ اسم المستخدم أو كلمة السر غير صحيحة.")
-                    
-    with tab2:
-        st.write("قم بإنشاء حساب جديد خاص بك لتسجيل التعديلات باسمك الشخصي.")
-        with st.form("register_form"):
-            new_fullname = st.text_input("الاسم الكامل للموظف (Nom et Prénom):")
-            new_username = st.text_input("اسم المستخدم الجديد (Username):")
-            new_pass1 = st.text_input("كلمة السر (Mot de passe):", type="password")
-            new_pass2 = st.text_input("تأكيد كلمة السر:", type="password")
-            
-            reg_button = st.form_submit_button("حفظ وإنشاء الحساب 💾")
-            
-            if reg_button:
-                if not new_fullname or not new_username or not new_pass1:
-                    st.error("⚠️ يرجى ملء جميع الخانات.")
-                elif new_username in users_db:
-                    st.error("⚠️ اسم المستخدم مستعمل بالفعل، اختر اسماً آخر.")
-                elif new_pass1 != new_pass2:
-                    st.error("⚠️ كلمتا السر غير متطابقين.")
-                else:
-                    users_db[new_username] = {
-                        "password": new_pass1,
-                        "role": "Agent",
-                        "name": new_fullname
-                    }
-                    save_users(users_db)
-                    st.success("✅ تم إنشاء الحساب بنجاح!")
+    with st.form("login_form"):
+        username_input = st.text_input("اسم المستخدم (Nom d'utilisateur):")
+        password_input = st.text_input("كلمة السر (Mot de passe):", type="password")
+        submit_button = st.form_submit_button("تسجيل الدخول 🔑")
+        
+        if submit_button:
+            if username_input in users_db and users_db[username_input]["password"] == password_input:
+                user_data = users_db[username_input]
+                user_data["username"] = username_input
+                st.session_state["logged_in"] = True
+                st.session_state["user_info"] = user_data
+                st.success(f"مرحباً بك {user_data['name']}!")
+                st.rerun()
+            else:
+                st.error("❌ اسم المستخدم أو كلمة السر غير صحيحة.")
 
 # --- 5. واجهة التطبيق الرئيسية ---
 else:
@@ -218,6 +189,7 @@ else:
 
     df = load_data()
 
+    # بناء القائمة الرئيسية (إظهار خيار إضافة موظف فقط للـ Admin)
     menu = [
         "📋 عرض والبحث حسب نوع الرخصة", 
         "🔄 إعادة تجديد رخصة (Renouvellement)",
@@ -225,9 +197,13 @@ else:
         "🖨️ طباعة وثيقة / شهادة رخصة",
         "📂 نماذج ووثائق للتحميل",
         "➕ إضافة رخصة جديدة لشركة", 
-        "✏️ تعديل / حذف رخصة",
-        "🔑 تغيير كلمة السر الخاصة بي"
+        "✏️ تعديل / حذف رخصة"
     ]
+    
+    if user.get("role") == "Admin":
+        menu.append("👥 إدارة المستخدمين (إضافة موظف جديد)")
+        
+    menu.append("🔑 تغيير كلمة السر الخاصة بي")
 
     choice = st.sidebar.selectbox("اختر العملية:", menu)
 
@@ -699,7 +675,45 @@ else:
                     st.success("✅ تم حذف الرخصة بنجاح!")
                     st.rerun()
 
-    # --- 8. تغيير كلمة السر ---
+    # --- 8. إضافة موظف جديد (خاصة بالأدمن فقط) ---
+    elif choice == "👥 إدارة المستخدمين (إضافة موظف جديد)":
+        st.subheader("👥 إضافة حساب موظف جديد إلى النظام")
+        st.write("هذه الخاصية متاحة فقط للمدير (Admin) لتسجيل الموظفين وتحديد صلاحياتهم.")
+
+        with st.form("admin_register_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                new_fullname = st.text_input("الاسم الكامل للموظف (Nom et Prénom):")
+                new_username = st.text_input("اسم المستخدم الجديد (Username):")
+            with col2:
+                new_role = st.selectbox("دور / صلاحية الموظف:", ["Agent", "Admin"])
+                new_pass1 = st.text_input("كلمة السر (Mot de passe):", type="password")
+                new_pass2 = st.text_input("تأكيد كلمة السر:", type="password")
+
+            reg_button = st.form_submit_button("➕ إنشاء وحفظ الحساب")
+
+            if reg_button:
+                if not new_fullname or not new_username or not new_pass1:
+                    st.error("⚠️ يرجى ملء جميع الخانات المطلوبة.")
+                elif new_username in users_db:
+                    st.error("⚠️ اسم المستخدم مستعمل بالفعل، اختر اسماً آخر.")
+                elif new_pass1 != new_pass2:
+                    st.error("⚠️ كلمتا السر غير متطابقتين.")
+                else:
+                    users_db[new_username] = {
+                        "password": new_pass1,
+                        "role": new_role,
+                        "name": new_fullname
+                    }
+                    save_users(users_db)
+                    st.success(f"✅ تم إنشاء حساب الموظف ({new_fullname}) بنجاح بصلاحية {new_role}!")
+
+        st.divider()
+        st.subheader("📋 قائمة الموظفين المسجلين حالياً:")
+        user_list_data = [{"اسم المستخدم": k, "الاسم الكامل": v.get("name"), "الصفة/Role": v.get("role")} for k, v in users_db.items()]
+        st.table(pd.DataFrame(user_list_data))
+
+    # --- 9. تغيير كلمة السر ---
     elif choice == "🔑 تغيير كلمة السر الخاصة بي":
         st.subheader("🔑 تغيير كلمة السر للحساب الحالي")
         
@@ -715,7 +729,7 @@ else:
                 if users_db.get(current_username, {}).get("password") != old_pass:
                     st.error("❌ كلمة السر الحالية غير صحيحة.")
                 elif new_pass != confirm_pass:
-                    st.error("⚠️كلمتا السر غير متطابقتين.")
+                    st.error("⚠️ كلمتا السر غير متطابقتين.")
                 elif not new_pass:
                     st.error("⚠️ يرجى إدخال كلمة سر جديدة.")
                 else:
