@@ -133,7 +133,7 @@ def save_data(df):
     df.to_excel(EXCEL_FILE, index=False)
 
 # --- 3. إعداد الصفحة والجلسة ---
-st.set_page_config(page_title="المنصة الإلكترونية لإدارة رخص المناجم", layout="wide")
+st.set_page_config(page_title="المنصة الإلكترونية لإدارة المناجم", layout="wide")
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -148,7 +148,7 @@ if not st.session_state["logged_in"]:
         with col_center:
             st.image(LOGO_PATH, use_container_width=True)
 
-    st.markdown("<h2 style='text-align: center; color: #3B82F6;'>المنصة الإلكترونية لإدارة رخص المناجم</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #3B82F6;'>المنصة الإلكترونية لإدارة المناجم</h2>", unsafe_allow_html=True)
     st.write("<p style='text-align: center;'>المرجو إدخال اسم المستخدم وكلمة السر للولوج إلى النظام.</p>", unsafe_allow_html=True)
     
     with st.form("login_form"):
@@ -196,7 +196,7 @@ else:
             st.image(LOGO_PATH, use_container_width=True)
 
     st.markdown(
-        "<h1 style='text-align: center; color: #2563EB; font-weight: bold; margin-top: 10px; margin-bottom: 20px;'>المنصة الإلكترونية لإدارة رخص المناجم</h1>", 
+        "<h1 style='text-align: center; color: #2563EB; font-weight: bold; margin-top: 10px; margin-bottom: 20px;'>المنصة الإلكترونية لإدارة المناجم</h1>", 
         unsafe_allow_html=True
     )
     st.divider()
