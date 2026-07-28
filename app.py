@@ -10,23 +10,52 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
 import base64
 
-# --- 1. إعداد الصفحة وإخفاء الأيقونات وزر Manage App ---
+# --- 1. إعداد الصفحة وإخفاء جميع العناصر والأيقونات العائمة ---
 st.set_page_config(page_title="المنصة الإلكترونية لإدارة المناجم", layout="wide")
 
-# كود CSS لإخفاء الأيقونات والشريط العلوي وزر Manage app السفلي
+# كود CSS القوي والشامل لإخفاء الهيدر، الفوتر، الأزرار، والأيقونات العائمة
 st.markdown("""
     <style>
-    /* إخفاء الشريط العلوي والأيقونات كاملين (Share, GitHub, Edit, Menu) */
-    header {visibility: hidden !important;}
-    #MainMenu {visibility: hidden !important;}
-    div[data-testid="stHeader"] {visibility: hidden !important;}
-    div[data-testid="stToolbar"] {visibility: hidden !important;}
+    /* 1. إخفاء الشريط العلوي والأيقونات الفوقانية (Share, Edit, GitHub, Star, Menu) */
+    header, #MainMenu, [data-testid="stHeader"], [data-testid="stToolbar"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* 2. إخفاء Footer كاملاً */
+    footer {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* 3. إخفاء زر Manage app والشريط السفلي فـ Streamlit Cloud */
+    .stAppViewContainer ~ div,
+    [data-testid="stAppToolbar"],
+    .stAppToolbar,
+    div[class*="stAppToolbar"],
+    button[title*="Manage app"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* 4. إخفاء الأيقونات العائمة لتحت على اليمين (Status Widget & Viewer Badges) */
+    [data-testid="stStatusWidget"],
+    .stStatusWidget,
+    div[class*="viewerBadge"],
+    div[class*="styles_viewerBadge"],
+    div[class*="StatusWidget"],
+    #root > div:nth-child(2),
+    iframe[title="Streamlit App"] ~ div {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
     
-    /* إخفاء Footer وزر Manage app لتحت */
-    footer {visibility: hidden !important;}
-    div[data-testid="stAppToolbar"] {display: none !important;}
-    .stAppToolbar {display: none !important;}
-    button[title="Manage app"] {display: none !important;}
+    /* 5. إزالة الهامش العلوي الفارغ */
+    .main .block-container {
+        padding-top: 1rem !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
