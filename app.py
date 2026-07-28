@@ -141,9 +141,15 @@ if "logged_in" not in st.session_state:
 
 users_db = load_users()
 
-# --- 4. واجهة تسجيل الدخول (فقط تسجيل الدخول) ---
+# --- 4. واجهة تسجيل الدخول (مع إظهار اللوجو) ---
 if not st.session_state["logged_in"]:
-    st.title("🔒 نظام إدارة رخص المناجم (Direction des Mines)")
+    # عرض اللوجو فـ صفحة تسجيل الدخول
+    if os.path.exists(LOGO_PATH):
+        col_left, col_center, col_right = st.columns([1, 1, 1])
+        with col_center:
+            st.image(LOGO_PATH, use_container_width=True)
+
+    st.markdown("<h2 style='text-align: center;'>🔒 نظام إدارة رخص المناجم (Direction des Mines)</h2>", unsafe_allow_html=True)
     st.write("المرجو إدخال اسم المستخدم وكلمة السر للولوج إلى النظام.")
     
     with st.form("login_form"):
@@ -179,8 +185,9 @@ else:
 
     st.sidebar.divider()
 
+    # عرض اللوجو فـ الواجهة الرئيسية بعد تسجيل الدخول
     if os.path.exists(LOGO_PATH):
-        col_left, col_center, col_right = st.columns([1, 2, 1])
+        col_left, col_center, col_right = st.columns([1, 1, 1])
         with col_center:
             st.image(LOGO_PATH, use_container_width=True)
 
