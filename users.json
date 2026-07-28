@@ -1,0 +1,12 @@
+{
+    "admin": {
+        "password": "1234a",
+        "role": "Admin",
+        "name": "المدير المسؤول"
+    },
+    "ISMAIL MILOUDI": {
+        "password": "AZERTY123",
+        "role": "Agent",
+        "name": "ISMAIL MILOUDI"
+    }
+}
