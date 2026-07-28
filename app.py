@@ -173,9 +173,6 @@ else:
     
     # --- الشريط الجانبي (Sidebar) ---
     with st.sidebar:
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=150)
-        
         st.markdown(f"""
             <div style="background-color: #1E293B; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #334155;">
                 <p style="margin: 0; font-weight: bold; color: #F8FAFC; font-size: 13px;">👤 {user['name']}</p>
@@ -212,7 +209,7 @@ else:
 
         choice = st.selectbox("اختر العملية:", menu)
 
-    # --- الجزء الرئيسي للمنصة ---
+    # --- الجزء الرئيسي للمنصة (اللوجو الرئيسي) ---
     if os.path.exists(LOGO_PATH):
         col_left, col_center, col_right = st.columns([1, 1.5, 1])
         with col_center:
