@@ -10,7 +10,27 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
 import base64
 
-# --- 1. إدارة ملف المستخدمين ---
+# --- 1. إعداد الصفحة وإخفاء الأيقونات وزر Manage App ---
+st.set_page_config(page_title="المنصة الإلكترونية لإدارة المناجم", layout="wide")
+
+# كود CSS لإخفاء الأيقونات والشريط العلوي وزر Manage app السفلي
+st.markdown("""
+    <style>
+    /* إخفاء الشريط العلوي والأيقونات كاملين (Share, GitHub, Edit, Menu) */
+    header {visibility: hidden !important;}
+    #MainMenu {visibility: hidden !important;}
+    div[data-testid="stHeader"] {visibility: hidden !important;}
+    div[data-testid="stToolbar"] {visibility: hidden !important;}
+    
+    /* إخفاء Footer وزر Manage app لتحت */
+    footer {visibility: hidden !important;}
+    div[data-testid="stAppToolbar"] {display: none !important;}
+    .stAppToolbar {display: none !important;}
+    button[title="Manage app"] {display: none !important;}
+    </style>
+""", unsafe_allow_html=True)
+
+# --- 2. إدارة ملف المستخدمين ---
 USERS_FILE = "users.json"
 
 def load_users():
@@ -33,7 +53,7 @@ def save_users(users_dict):
     with open(USERS_FILE, "w", encoding="utf-8") as f:
         json.dump(users_dict, f, ensure_ascii=False, indent=4)
 
-# --- 2. إعدادات وإدارة البيانات الجغرافية ---
+# --- 3. إعدادات وإدارة البيانات الجغرافية ---
 EXCEL_FILE = "mines_permits.xlsx"
 LOGO_PATH = "logo.png"
 
@@ -132,28 +152,14 @@ def load_data():
 def save_data(df):
     df.to_excel(EXCEL_FILE, index=False)
 
-# --- 3. إعداد الصفحة والجلسة ---
-st.set_page_config(page_title="المنصة الإلكترونية لإدارة المناجم", layout="wide")
-# --- كود إخفاء الأيقونات والشريط العلوي والسفلي ---
-st.markdown("""
-    <style>
-    /* إخفاء الشريط العلوي بالأيقونات كاملاً */
-    header {visibility: hidden !important;}
-    #MainMenu {visibility: hidden !important;}
-    
-    /* إخفاء زر Manage app والتولبار السفلي */
-    footer {visibility: hidden !important;}
-    [data-testid="stAppToolbar"] {display: none !important;}
-    </style>
-""", unsafe_allow_html=True)
-
+# --- 4. إعداد الجلسة ---
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
     st.session_state["user_info"] = None
 
 users_db = load_users()
 
-# --- 4. واجهة تسجيل الدخول ---
+# --- 5. واجهة تسجيل الدخول ---
 if not st.session_state["logged_in"]:
     if os.path.exists(LOGO_PATH):
         col_left, col_center, col_right = st.columns([1, 1, 1])
@@ -179,7 +185,7 @@ if not st.session_state["logged_in"]:
             else:
                 st.error("❌ اسم المستخدم أو كلمة السر غير صحيحة.")
 
-# --- 5. واجهة التطبيق الرئيسية ---
+# --- 6. واجهة التطبيق الرئيسية ---
 else:
     user = st.session_state["user_info"]
     
