@@ -134,6 +134,18 @@ def save_data(df):
 
 # --- 3. إعداد الصفحة والجلسة ---
 st.set_page_config(page_title="المنصة الإلكترونية لإدارة المناجم", layout="wide")
+# --- كود إخفاء الأيقونات والشريط العلوي والسفلي ---
+st.markdown("""
+    <style>
+    /* إخفاء الشريط العلوي بالأيقونات كاملاً */
+    header {visibility: hidden !important;}
+    #MainMenu {visibility: hidden !important;}
+    
+    /* إخفاء زر Manage app والتولبار السفلي */
+    footer {visibility: hidden !important;}
+    [data-testid="stAppToolbar"] {display: none !important;}
+    </style>
+""", unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
