@@ -133,7 +133,7 @@ def save_data(df):
     df.to_excel(EXCEL_FILE, index=False)
 
 # --- 3. إعداد الصفحة والجلسة ---
-st.set_page_config(page_title="إدارة مناجم - نظام الرخص المحمي", layout="wide")
+st.set_page_config(page_title="المنصة الإلكترونية لإدارة رخص المناجم", layout="wide")
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -141,16 +141,15 @@ if "logged_in" not in st.session_state:
 
 users_db = load_users()
 
-# --- 4. واجهة تسجيل الدخول (مع إظهار اللوجو) ---
+# --- 4. واجهة تسجيل الدخول ---
 if not st.session_state["logged_in"]:
-    # عرض اللوجو فـ صفحة تسجيل الدخول
     if os.path.exists(LOGO_PATH):
         col_left, col_center, col_right = st.columns([1, 1, 1])
         with col_center:
             st.image(LOGO_PATH, use_container_width=True)
 
-    st.markdown("<h2 style='text-align: center;'>🔒 نظام إدارة رخص المناجم (Direction des Mines)</h2>", unsafe_allow_html=True)
-    st.write("المرجو إدخال اسم المستخدم وكلمة السر للولوج إلى النظام.")
+    st.markdown("<h2 style='text-align: center; color: #3B82F6;'>المنصة الإلكترونية لإدارة رخص المناجم</h2>", unsafe_allow_html=True)
+    st.write("<p style='text-align: center;'>المرجو إدخال اسم المستخدم وكلمة السر للولوج إلى النظام.</p>", unsafe_allow_html=True)
     
     with st.form("login_form"):
         username_input = st.text_input("اسم المستخدم (Nom d'utilisateur):")
@@ -172,31 +171,39 @@ if not st.session_state["logged_in"]:
 else:
     user = st.session_state["user_info"]
     
+    # اللوجو فـ الشريط الجانبي (Sidebar)
+    if os.path.exists(LOGO_PATH):
+        st.sidebar.image(LOGO_PATH, use_container_width=True)
+        st.sidebar.markdown("<br>", unsafe_allow_html=True)
+
     st.sidebar.title(f"👤 {user['name']}")
     st.sidebar.caption(f"الصفة: **{user['role']}** | الحساب: **{user.get('username', '')}**")
     
     if st.sidebar.button("🔄 تحديث الشاشة"):
         st.rerun()
 
-    if st.sidebar.button("تسجيل الخروج 🚪"):
+    if st.sidebar.button("🚪 تسجيل الخروج"):
         st.session_state["logged_in"] = False
         st.session_state["user_info"] = None
         st.rerun()
 
     st.sidebar.divider()
 
-    # عرض اللوجو فـ الواجهة الرئيسية بعد تسجيل الدخول
+    # اللوجو فـ الصفحة الرئيسية
     if os.path.exists(LOGO_PATH):
-        col_left, col_center, col_right = st.columns([1, 1, 1])
+        col_left, col_center, col_right = st.columns([1, 1.5, 1])
         with col_center:
             st.image(LOGO_PATH, use_container_width=True)
 
-    st.markdown("<h1 style='text-align: center; margin-top: 10px;'>نظام إدارة رخص المناجم</h1>", unsafe_allow_html=True)
+    st.markdown(
+        "<h1 style='text-align: center; color: #2563EB; font-weight: bold; margin-top: 10px; margin-bottom: 20px;'>المنصة الإلكترونية لإدارة رخص المناجم</h1>", 
+        unsafe_allow_html=True
+    )
     st.divider()
 
     df = load_data()
 
-    # بناء القائمة الرئيسية (إظهار خيار إضافة موظف فقط للـ Admin)
+    # القائمة الرئيسية
     menu = [
         "📋 عرض والبحث حسب نوع الرخصة", 
         "🔄 إعادة تجديد رخصة (Renouvellement)",
@@ -208,7 +215,7 @@ else:
     ]
     
     if user.get("role") == "Admin":
-        menu.append("👥 إدارة المستخدمين (إضافة موظف جديد)")
+        menu.append("👥 إدارة المستخدمين (إضافة وتعديل الحسابات)")
         
     menu.append("🔑 تغيير كلمة السر الخاصة بي")
 
@@ -682,45 +689,72 @@ else:
                     st.success("✅ تم حذف الرخصة بنجاح!")
                     st.rerun()
 
-    # --- 8. إضافة موظف جديد (خاصة بالأدمن فقط) ---
-    elif choice == "👥 إدارة المستخدمين (إضافة موظف جديد)":
-        st.subheader("👥 إضافة حساب موظف جديد إلى النظام")
-        st.write("هذه الخاصية متاحة فقط للمدير (Admin) لتسجيل الموظفين وتحديد صلاحياتهم.")
+    # --- 8. إدارة المستخدمين وإعادة تعيين كلمة السر (خاصة بالأدمن فقط) ---
+    elif choice == "👥 إدارة المستخدمين (إضافة وتعديل الحسابات)":
+        st.subheader("👥 إدارة حسابات الموظفين والصلاحيات")
+        st.write("يمكنك إضافة حساب جديد، أو إعادة تعيين كلمة السر لأي موظف نسى كلمة السر الخاصة به.")
 
-        with st.form("admin_register_form"):
-            col1, col2 = st.columns(2)
-            with col1:
-                new_fullname = st.text_input("الاسم الكامل للموظف (Nom et Prénom):")
-                new_username = st.text_input("اسم المستخدم الجديد (Username):")
-            with col2:
-                new_role = st.selectbox("دور / صلاحية الموظف:", ["Agent", "Admin"])
-                new_pass1 = st.text_input("كلمة السر (Mot de passe):", type="password")
-                new_pass2 = st.text_input("تأكيد كلمة السر:", type="password")
+        tab1, tab2 = st.tabs(["➕ إضافة موظف جديد", "🔑 إعادة تعيين كلمة السر لموظف (Reset Password)"])
 
-            reg_button = st.form_submit_button("➕ إنشاء وحفظ الحساب")
+        with tab1:
+            with st.form("admin_register_form"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    new_fullname = st.text_input("الاسم الكامل للموظف (Nom et Prénom):")
+                    new_username = st.text_input("اسم المستخدم الجديد (Username):")
+                with col2:
+                    new_role = st.selectbox("دور / صلاحية الموظف:", ["Agent", "Admin"])
+                    new_pass1 = st.text_input("كلمة السر (Mot de passe):", type="password")
+                    new_pass2 = st.text_input("تأكيد كلمة السر:", type="password")
 
-            if reg_button:
-                if not new_fullname or not new_username or not new_pass1:
-                    st.error("⚠️ يرجى ملء جميع الخانات المطلوبة.")
-                elif new_username in users_db:
-                    st.error("⚠️ اسم المستخدم مستعمل بالفعل، اختر اسماً آخر.")
-                elif new_pass1 != new_pass2:
-                    st.error("⚠️ كلمتا السر غير متطابقتين.")
-                else:
-                    users_db[new_username] = {
-                        "password": new_pass1,
-                        "role": new_role,
-                        "name": new_fullname
-                    }
-                    save_users(users_db)
-                    st.success(f"✅ تم إنشاء حساب الموظف ({new_fullname}) بنجاح بصلاحية {new_role}!")
+                reg_button = st.form_submit_button("➕ إنشاء وحفظ الحساب")
+
+                if reg_button:
+                    if not new_fullname or not new_username or not new_pass1:
+                        st.error("⚠️ يرجى ملء جميع الخانات المطلوبة.")
+                    elif new_username in users_db:
+                        st.error("⚠️ اسم المستخدم مستعمل بالفعل، اختر اسماً آخر.")
+                    elif new_pass1 != new_pass2:
+                        st.error("⚠️ كلمتا السر غير متطابقتين.")
+                    else:
+                        users_db[new_username] = {
+                            "password": new_pass1,
+                            "role": new_role,
+                            "name": new_fullname
+                        }
+                        save_users(users_db)
+                        st.success(f"✅ تم إنشاء حساب الموظف ({new_fullname}) بنجاح بصلاحية {new_role}!")
+                        st.rerun()
+
+        with tab2:
+            st.warning("⚠️ اختر الحساب المراد تغيير كلمة السر له وأدخل كلمة السر الجديدة مباشرة.")
+            user_options = [f"{k} | ({v.get('name')})" for k, v in users_db.items()]
+            selected_user_opt = st.selectbox("اختر حساب الموظف:", user_options)
+            
+            selected_uname = selected_user_opt.split(" | ")[0]
+
+            with st.form("reset_pass_form"):
+                admin_new_pass = st.text_input("كلمة السر الجديدة للحساب:", type="password")
+                admin_confirm_pass = st.text_input("تأكيد كلمة السر الجديدة:", type="password")
+                
+                reset_btn = st.form_submit_button("🔄 تغيير وتحديث كلمة السر")
+
+                if reset_btn:
+                    if not admin_new_pass:
+                        st.error("⚠️ يرجى إدخال كلمة السر الجديدة.")
+                    elif admin_new_pass != admin_confirm_pass:
+                        st.error("⚠️ كلمتا السر غير متطابقتين.")
+                    else:
+                        users_db[selected_uname]["password"] = admin_new_pass
+                        save_users(users_db)
+                        st.success(f"✅ تم تحديث كلمة السر للحساب ({selected_uname}) بنجاح!")
 
         st.divider()
         st.subheader("📋 قائمة الموظفين المسجلين حالياً:")
         user_list_data = [{"اسم المستخدم": k, "الاسم الكامل": v.get("name"), "الصفة/Role": v.get("role")} for k, v in users_db.items()]
         st.table(pd.DataFrame(user_list_data))
 
-    # --- 9. تغيير كلمة السر ---
+    # --- 9. تغيير كلمة السر الشخصية ---
     elif choice == "🔑 تغيير كلمة السر الخاصة بي":
         st.subheader("🔑 تغيير كلمة السر للحساب الحالي")
         
