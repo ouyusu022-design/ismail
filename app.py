@@ -1,4 +1,41 @@
 import streamlit as st
+import streamlit as st
+import streamlit.components.v1 as components
+
+# إعدادات الصفحة
+st.set_page_config(page_title="المنصة الإلكترونية لإدارة المناجم", layout="wide")
+
+# كود JavaScript + CSS كايحيد العناصر من أصل الـ Document
+components.html(
+    """
+    <script>
+        const removeElements = () => {
+            // اختيار جميع العناصر الإدارية والهيدر والفوتر والـ Badges
+            const selectors = [
+                'header', 'footer', '#MainMenu', 
+                '[data-testid="stHeader"]', 
+                '[data-testid="stToolbar"]',
+                '[data-testid="stAppViewerBadge"]',
+                '[data-testid="stStatusWidget"]',
+                '#ManageAppButton',
+                'div[class*="viewerBadge"]',
+                'div[class*="StatusWidget"]'
+            ];
+            
+            selectors.forEach(selector => {
+                const elements = window.parent.document.querySelectorAll(selector);
+                elements.forEach(el => el.remove());
+            });
+        };
+        
+        // تنفيذ التنظيف فوراً وتكراره لضمان الإزالة
+        removeElements();
+        setInterval(removeElements, 500);
+    </script>
+    """,
+    height=0,
+    width=0
+)
 import pandas as pd
 import os
 from datetime import datetime, date
