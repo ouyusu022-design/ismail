@@ -10,7 +10,56 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
 import base64
 
-# --- 1. إدارة ملف المستخدمين ---
+# --- 1. إعداد الصفحة وإخفاء جميع العناصر والأيقونات العائمة ---
+st.set_page_config(page_title="المنصة الإلكترونية لإدارة المناجم", layout="wide")
+
+# كود CSS القوي والشامل لإخفاء الهيدر، الفوتر، الأزرار، والأيقونات العائمة
+st.markdown("""
+    <style>
+    /* 1. إخفاء الشريط العلوي والأيقونات الفوقانية (Share, Edit, GitHub, Star, Menu) */
+    header, #MainMenu, [data-testid="stHeader"], [data-testid="stToolbar"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* 2. إخفاء Footer كاملاً */
+    footer {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* 3. إخفاء زر Manage app والشريط السفلي فـ Streamlit Cloud */
+    .stAppViewContainer ~ div,
+    [data-testid="stAppToolbar"],
+    .stAppToolbar,
+    div[class*="stAppToolbar"],
+    button[title*="Manage app"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* 4. إخفاء الأيقونات العائمة لتحت على اليمين (Status Widget & Viewer Badges) */
+    [data-testid="stStatusWidget"],
+    .stStatusWidget,
+    div[class*="viewerBadge"],
+    div[class*="styles_viewerBadge"],
+    div[class*="StatusWidget"],
+    #root > div:nth-child(2),
+    iframe[title="Streamlit App"] ~ div {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    /* 5. إزالة الهامش العلوي الفارغ */
+    .main .block-container {
+        padding-top: 1rem !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- 2. إدارة ملف المستخدمين ---
 USERS_FILE = "users.json"
 
 def load_users():
@@ -33,7 +82,7 @@ def save_users(users_dict):
     with open(USERS_FILE, "w", encoding="utf-8") as f:
         json.dump(users_dict, f, ensure_ascii=False, indent=4)
 
-# --- 2. إعدادات وإدارة البيانات الجغرافية ---
+# --- 3. إعدادات وإدارة البيانات الجغرافية ---
 EXCEL_FILE = "mines_permits.xlsx"
 LOGO_PATH = "logo.png"
 
@@ -132,16 +181,14 @@ def load_data():
 def save_data(df):
     df.to_excel(EXCEL_FILE, index=False)
 
-# --- 3. إعداد الصفحة والجلسة ---
-st.set_page_config(page_title="المنصة الإلكترونية لإدارة المناجم", layout="wide")
-
+# --- 4. إعداد الجلسة ---
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
     st.session_state["user_info"] = None
 
 users_db = load_users()
 
-# --- 4. واجهة تسجيل الدخول ---
+# --- 5. واجهة تسجيل الدخول ---
 if not st.session_state["logged_in"]:
     if os.path.exists(LOGO_PATH):
         col_left, col_center, col_right = st.columns([1, 1, 1])
@@ -167,7 +214,7 @@ if not st.session_state["logged_in"]:
             else:
                 st.error("❌ اسم المستخدم أو كلمة السر غير صحيحة.")
 
-# --- 5. واجهة التطبيق الرئيسية ---
+# --- 6. واجهة التطبيق الرئيسية ---
 else:
     user = st.session_state["user_info"]
     
